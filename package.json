@@ -1,6 +1,6 @@
 {
   "name": "switchboard-ai",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Cost-aware System One/System Two AI orchestration runtime using Jev for routing and frontier models for execution.",
   "type": "module",
@@ -8,7 +8,8 @@
     "start": "node src/cli.mjs",
     "demo": "node src/cli.mjs --dry-run \"Analyze this TypeScript repo, fix the failing tests, and explain the patch\"",
     "test": "node --test tests/*.test.mjs",
-    "benchmark": "node scripts/benchmark.mjs"
+    "benchmark": "node scripts/benchmark.mjs",
+    "benchmark:routing": "node scripts/benchmark-routing.mjs"
   },
   "dependencies": {
     "@typesafe-ai/sdk": "^1.0.0"
