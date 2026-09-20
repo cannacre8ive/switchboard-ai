@@ -1,0 +1,14 @@
+[
+  {"id":"writing-simple","prompt":"Rewrite this customer email so it sounds warmer and more concise.","expectedTaskType":"writing","acceptedExecutors":["claude-general","cheap-general"]},
+  {"id":"coding-debug","prompt":"Debug this TypeScript repository, fix the failing tests, and explain the patch.","expectedTaskType":"coding","acceptedExecutors":["codex-coding","frontier-reasoner"]},
+  {"id":"research-current","prompt":"Research the latest API pricing and compare the current options with sources.","expectedTaskType":"research","acceptedExecutors":["claude-general","frontier-reasoner"]},
+  {"id":"architecture","prompt":"Design a production architecture and roadmap for a multi-agent orchestration runtime.","expectedTaskType":"planning","acceptedExecutors":["frontier-reasoner","claude-general"]},
+  {"id":"data-analysis","prompt":"Analyze this CSV and identify which customer segment drove the conversion decline.","expectedTaskType":"data","acceptedExecutors":["cheap-general","claude-general","frontier-reasoner"]},
+  {"id":"retrieval","prompt":"Find the relevant section in my existing project files about authentication decisions.","expectedTaskType":"retrieval","acceptedExecutors":["cheap-general","claude-general"]},
+  {"id":"automation","prompt":"Use the browser and GitHub tools to update the repository, run tests, and open a pull request.","expectedTaskType":"automation","acceptedExecutors":["codex-coding","frontier-reasoner","claude-general"]},
+  {"id":"coding-security","prompt":"Review this authentication middleware for a production security vulnerability and propose a safe patch.","expectedTaskType":"coding","acceptedExecutors":["codex-coding","frontier-reasoner"]},
+  {"id":"writing-proposal","prompt":"Draft a polished client proposal from these project notes.","expectedTaskType":"writing","acceptedExecutors":["claude-general","cheap-general"]},
+  {"id":"research-code","prompt":"Research the current SDK docs, then update this integration code to match the latest API.","expectedTaskType":"coding","acceptedExecutors":["codex-coding","frontier-reasoner"]},
+  {"id":"simple-extraction","prompt":"Extract the invoice number and total from this text.","expectedTaskType":"other","acceptedExecutors":["cheap-general"]},
+  {"id":"strategy","prompt":"Create a strategy for reducing support resolution time without reducing customer satisfaction.","expectedTaskType":"planning","acceptedExecutors":["frontier-reasoner","claude-general"]}
+]
