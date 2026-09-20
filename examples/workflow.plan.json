@@ -1,0 +1,23 @@
+{
+  "objective": "Research an API change, update the integration, test it, and summarize the result",
+  "steps": [
+    {
+      "id": "research",
+      "objective": "Research the current API behavior and identify the required integration changes with evidence.",
+      "dependsOn": [],
+      "budgetWeight": 1
+    },
+    {
+      "id": "implement",
+      "objective": "Update the integration code using the research findings and run the relevant tests.",
+      "dependsOn": ["research"],
+      "budgetWeight": 2
+    },
+    {
+      "id": "summary",
+      "objective": "Summarize what changed, what was verified, and any remaining limitations.",
+      "dependsOn": ["research", "implement"],
+      "budgetWeight": 1
+    }
+  ]
+}
