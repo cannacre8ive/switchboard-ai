@@ -3,6 +3,10 @@ function numberOrZero(value) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function hasKnownPrice(value) {
+  return value !== null && value !== undefined && value !== "" && Number.isFinite(Number(value));
+}
+
 export function normalizeUsage(provider, usage = {}) {
   if (!usage) return { inputTokens: 0, outputTokens: 0 };
   if (provider === "anthropic") {
@@ -16,10 +20,11 @@ export function normalizeUsage(provider, usage = {}) {
 
 export function calculateUsageCost({ provider, usage, pricing }) {
   const normalized = normalizeUsage(provider, usage);
-  const inputRate = Number(pricing?.inputUsdPerMillion);
-  const outputRate = Number(pricing?.outputUsdPerMillion);
-  const hasInputPrice = Number.isFinite(inputRate);
-  const hasOutputPrice = Number.isFinite(outputRate);
+  const hasInputPrice = hasKnownPrice(pricing?.inputUsdPerMillion);
+  const hasOutputPrice = hasKnownPrice(pricing?.outputUsdPerMillion);
+  const inputRate = hasInputPrice ? Number(pricing.inputUsdPerMillion) : null;
+  const outputRate = hasOutputPrice ? Number(pricing.outputUsdPerMillion) : null;
+
   return {
     ...normalized,
     inputCostUsd: hasInputPrice ? (normalized.inputTokens / 1_000_000) * inputRate : null,
