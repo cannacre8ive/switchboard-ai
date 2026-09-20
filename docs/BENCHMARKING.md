@@ -1,31 +1,32 @@
 # Benchmarking the Jev hypothesis
 
-Switchboard's core product hypothesis is not “Jev is cheap.” It is:
+Switchboard's hypothesis is not simply “Jev is cheap.” It is:
 
 > A cheap calibrated decision layer can lower **successful-task cost** by avoiding unnecessary frontier calls, restricting context/tool exposure, and escalating only when uncertainty warrants it.
 
 ## Baselines
 
-For the same task corpus, compare at least:
+Compare the same tasks across:
 
-1. **Rules -> executor** (near-zero routing cost)
-2. **Jev -> executor** (System One router)
-3. **Frontier supervisor -> executor** (conventional generative router)
-4. **Always-frontier** (no routing)
+1. Rules -> executor
+2. Jev -> executor
+3. Frontier supervisor -> executor
+4. Always-frontier
 
-## Required measurements
+## Routing smoke benchmark
 
-- routing cost and latency
-- executor cost and latency
-- verification cost
-- retry/escalation cost
-- task success
-- quality score
-- tool-call count
-- context tokens passed to executor
+`npm run benchmark:routing` uses `benchmarks/routing-corpus.json`.
 
-The primary metric is `total_cost_usd / successful_tasks`, with quality and latency constraints reported separately.
+This corpus is a development smoke/regression set, **not evidence that the router generalizes**. A credible Jev-vs-rules comparison requires a larger held-out corpus not used while editing routing rules.
+
+When `TYPESAFE_API_KEY` is absent, the Jev leg is skipped rather than simulated.
+
+## End-to-end measurements
+
+Track routing, execution, verification and retry cost/latency, task success, quality, tool calls, and executor context tokens.
+
+The primary economic metric is `total_cost_usd / successful_tasks`, with minimum quality requirements reported separately.
 
 ## Interpretation
 
-Jev only wins economically when the savings produced by better/cheaper routing exceed the cost of the Jev call itself. On long expensive tasks, router savings may be marginal. On high-volume decision-heavy workflows, they may compound substantially.
+Jev only wins economically when savings from better routing, context restriction, tool selection, or verification exceed the Jev calls themselves.
