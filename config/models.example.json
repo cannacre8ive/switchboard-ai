@@ -2,37 +2,42 @@
   {
     "id": "cheap-general",
     "provider": "openai",
-    "model": "SET_ME",
+    "envModel": "OPENAI_MODEL",
     "tier": 1,
     "capabilities": ["writing", "classification", "summarization", "extraction"],
     "inputUsdPerMillion": null,
-    "outputUsdPerMillion": null
+    "outputUsdPerMillion": null,
+    "enabled": true
   },
   {
     "id": "claude-general",
     "provider": "anthropic",
-    "model": "SET_ME",
+    "envModel": "ANTHROPIC_MODEL",
     "tier": 3,
     "capabilities": ["writing", "reasoning", "planning", "long-context", "research-synthesis"],
     "inputUsdPerMillion": null,
-    "outputUsdPerMillion": null
+    "outputUsdPerMillion": null,
+    "enabled": true
   },
   {
     "id": "codex-coding",
     "provider": "openai",
-    "model": "SET_ME",
+    "envModel": "CODEX_MODEL",
     "tier": 3,
     "capabilities": ["coding", "debugging", "repo-navigation", "tests"],
     "inputUsdPerMillion": null,
-    "outputUsdPerMillion": null
+    "outputUsdPerMillion": null,
+    "enabled": true
   },
   {
     "id": "frontier-reasoner",
     "provider": "openai",
-    "model": "SET_ME",
+    "envModel": "FRONTIER_MODEL",
+    "fallbackEnvModel": "OPENAI_MODEL",
     "tier": 4,
     "capabilities": ["reasoning", "planning", "coding", "research-synthesis", "long-context"],
     "inputUsdPerMillion": null,
-    "outputUsdPerMillion": null
+    "outputUsdPerMillion": null,
+    "enabled": true
   }
 ]
