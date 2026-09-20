@@ -1,6 +1,6 @@
 {
   "name": "switchboard-ai",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "description": "Cost-aware System One/System Two AI orchestration runtime using Jev for routing and frontier models for execution.",
   "type": "module",
