@@ -12,8 +12,10 @@
     "benchmark:routing": "node scripts/benchmark-routing.mjs"
   },
   "dependencies": {
-    "@typesafe-ai/sdk": "^1.0.0"
+    "@typesafe-ai/sdk": "^0.6.0"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "license": "MIT"
 }
