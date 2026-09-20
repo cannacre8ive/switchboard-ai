@@ -1,6 +1,6 @@
 {
   "name": "switchboard-ai",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "Cost-aware System One/System Two AI orchestration runtime using Jev for routing and frontier models for execution.",
   "type": "module",
@@ -14,8 +14,6 @@
   "dependencies": {
     "@typesafe-ai/sdk": "^1.0.0"
   },
-  "engines": {
-    "node": ">=20"
-  },
+  "engines": { "node": ">=20" },
   "license": "MIT"
 }
