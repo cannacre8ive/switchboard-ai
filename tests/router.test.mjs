@@ -29,5 +29,17 @@ test("estimates Jev routing cost at a tiny fraction of a dollar", () => {
 });
 
 test("successful task cost sums every orchestration layer", () => {
-  assert.equal(successfulTaskCost({ routingCostUsd: 0.01, executionCostUsd: 0.1, verificationCostUsd: 0.02, retriesCostUsd: 0.03 }), 0.16);
+  assert.equal(successfulTaskCost({
+    routingCostUsd: 0.01,
+    executionCostUsd: 0.1,
+    verificationCostUsd: 0.02,
+    retriesCostUsd: 0.03,
+  }), 0.16);
+});
+
+test("marks multi-action automation as decomposition-worthy", async () => {
+  const result = await router.route(
+    "Use browser tools to research the bug, update GitHub, run tests, and open a pull request",
+  );
+  assert.equal(result.contract.needsDecomposition, true);
 });
