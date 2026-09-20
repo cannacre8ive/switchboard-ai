@@ -14,7 +14,7 @@ Jev is used for typed routing and post-execution verification decisions. It is n
 
 ## Status
 
-**V0.2 execution + verification loop is working.** It includes:
+**V0.3 least-privilege tool/context planning is working.** It includes:
 
 - offline deterministic router
 - live TypeSafe Jev router using `Choice`, `Noul`, and `Score`
@@ -25,6 +25,9 @@ Jev is used for typed routing and post-execution verification decisions. It is n
 - provider token-usage normalization and cost accounting
 - Jev post-execution verification with risk-adjusted thresholds
 - automatic retry/escalation to a higher model tier
+- logical tool-capability planning with read/write risk metadata
+- explicit write-permission gate via `--allow-writes`
+- context budgets and retrieval planning
 - JSONL telemetry
 - routing smoke benchmark corpus
 - offline tests
@@ -53,31 +56,23 @@ node src/cli.mjs --dry-run "Debug this repository and fix the failing tests"
 
 ### Enable live model execution
 
-Set the provider key and current model IDs:
+Set provider keys and current model IDs, then remove `--dry-run`.
+
+## Least-privilege tool planning
+
+Switchboard plans logical capabilities before provider-specific tools are attached. A task may request `github`, `files`, and `browser`, but write-capable tools are blocked unless write permission is explicit.
 
 ```bash
-export OPENAI_API_KEY="..."
-export OPENAI_MODEL="..."
-export CODEX_MODEL="..."
-export FRONTIER_MODEL="..."
-export ANTHROPIC_API_KEY="..."
-export ANTHROPIC_MODEL="..."
+node src/cli.mjs --dry-run --no-jev "Use the browser and GitHub tools to update the repository and open a pull request"
 ```
 
-Then remove `--dry-run`.
-
-## Modes
-
-- `economy` — cheaper first attempts, minimal verification
-- `balanced` — quality-per-dollar default
-- `premium` — stronger confidence thresholds and verification
-- `max` — aggressive escalation to strongest configured path
-
-Example:
+To authorize write-capable tools in the plan:
 
 ```bash
-node src/cli.mjs --dry-run --mode=economy --max-cost=0.25 --max-attempts=2 "Summarize this support ticket"
+node src/cli.mjs --dry-run --allow-writes "Update the repository and open a pull request"
 ```
+
+V0.3 still treats these as **logical capability plans**. Provider-specific MCP/OpenAI/Claude tool execution is the next integration step.
 
 ## Custom model registry
 
@@ -89,15 +84,16 @@ node src/cli.mjs --registry=config/models.json --max-cost=1.00 "your request"
 
 ## Benchmarking
 
-`npm run benchmark:routing` runs the deterministic baseline and, when `TYPESAFE_API_KEY` is configured, the same corpus through Jev. The included corpus is deliberately labeled a **smoke/regression benchmark**, not held-out evidence of generalization.
+`npm run benchmark:routing` runs the deterministic baseline and, when `TYPESAFE_API_KEY` is configured, the same corpus through Jev. The included corpus is a smoke/regression benchmark, not held-out evidence of generalization.
 
 ## Principles
 
 1. Use deterministic software before AI when possible.
 2. Use Jev for narrow typed judgments, not open-ended generation.
 3. Give each worker only the context and tools it needs.
-4. Escalate based on uncertainty and risk, not prestige.
-5. Optimize successful-task cost, not raw token price.
-6. Keep provider/model IDs configurable.
+4. Deny external mutations by default.
+5. Escalate based on uncertainty and risk, not prestige.
+6. Optimize successful-task cost, not raw token price.
+7. Keep provider/model IDs configurable.
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md).
