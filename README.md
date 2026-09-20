@@ -1,36 +1,51 @@
 # Switchboard AI
 
-A cost-aware **System One / System Two AI runtime** that uses cheap structured decision intelligence for routing and reserves expensive generative models for work that needs them.
-
-## Why
-
-Most agent stacks use a generative LLM to decide which generative LLM or tool should run next. Switchboard separates **deciding** from **doing**:
+A cost-aware, vendor-neutral **System One / System Two AI orchestration runtime**. Switchboard uses cheap structured decisions for routing and reserves generative models, tools, and multi-agent workflows for work that actually needs them.
 
 ```text
-request -> Jev/rules -> task contract -> policy -> model registry -> executor -> verifier -> accept/escalate -> telemetry
+objective
+  -> Jev/rules decision layer
+  -> task contract + risk/confidence policy
+  -> optional supervisor decomposition
+  -> dependency-aware subtask DAG
+  -> model + tool + context routing per step
+  -> execution
+  -> verification
+  -> accept / retry / escalate
+  -> telemetry + economics
 ```
 
-Jev is used for typed routing and post-execution verification decisions. It is not treated as a replacement for frontier reasoning or generative models.
+## Status: V0.4
 
-## Status
+Working today:
 
-**V0.3 least-privilege tool/context planning is working.** It includes:
-
-- offline deterministic router
-- live TypeSafe Jev router using `Choice`, `Noul`, and `Score`
+- TypeSafe Jev adapter using `choice`, `noul`, and `score`
+- zero-key deterministic routing fallback
 - normalized task contracts
 - economy / balanced / premium / max policies
-- Anthropic and OpenAI HTTP executors
-- configurable model registry
-- provider token-usage normalization and cost accounting
-- Jev post-execution verification with risk-adjusted thresholds
-- automatic retry/escalation to a higher model tier
-- logical tool-capability planning with read/write risk metadata
-- explicit write-permission gate via `--allow-writes`
-- context budgets and retrieval planning
+- configurable OpenAI / Anthropic / Codex-style logical executors
+- model registry with tiers, capabilities, and optional pricing
+- confidence- and risk-based escalation
+- Jev post-execution verification with deterministic fallback
+- routing, execution, verification, and retry cost accounting
+- least-privilege logical tool plans
+- explicit write gate via `--allow-writes`
+- context budgets and targeted retrieval plans
+- supervisor decision for single-task vs decomposed workflow
+- generative workflow planner with validated DAG output
+- bounded-concurrency workflow scheduler
+- dependency-scoped context propagation
+- shared workflow budget split by step weight
 - JSONL telemetry
-- routing smoke benchmark corpus
-- offline tests
+- routing smoke benchmark
+- GitHub Actions CI
+
+Not yet implemented:
+
+- provider-specific MCP / tool transport adapters
+- live held-out Jev-vs-rules benchmark results
+- learned routing policy from production outcomes
+- web UI / dashboard
 
 ## Quick start
 
@@ -40,60 +55,119 @@ Requires Node 20+.
 npm install
 cp .env.example .env
 npm test
-npm run demo
 npm run benchmark:routing
 ```
 
-The runtime works in rules/dry-run mode without API keys.
+The project runs in offline/rules mode without API keys.
 
-### Enable Jev
+### Preview a normal routed task
+
+```bash
+node src/cli.mjs --dry-run --no-jev "Debug this repository and fix the failing tests"
+```
+
+### Preview supervisor decomposition
+
+```bash
+node src/cli.mjs --dry-run --no-jev --supervise \
+  "Research this issue, update the repository, run tests, and summarize the result"
+```
+
+A supervisor dry-run does **not** spend a generative planning call. It reports whether a planner would be invoked.
+
+### Run an explicit workflow plan
+
+```bash
+node src/cli.mjs --dry-run \
+  --workflow-plan=examples/workflow.plan.json \
+  "Research an API change, update the integration, test it, and summarize the result"
+```
+
+See [`docs/WORKFLOWS.md`](docs/WORKFLOWS.md).
+
+## Enable Jev
+
+Set your TypeSafe key locally; do not commit it:
 
 ```bash
 export TYPESAFE_API_KEY="..."
 export TYPESAFE_MODEL="jev-latest"
-node src/cli.mjs --dry-run "Debug this repository and fix the failing tests"
 ```
 
-### Enable live model execution
+Then run the same commands without `--no-jev`.
 
-Set provider keys and current model IDs, then remove `--dry-run`.
+## Enable live executors
+
+Configure current provider model IDs rather than hard-coding them:
+
+```bash
+export OPENAI_API_KEY="..."
+export OPENAI_MODEL="..."
+export CODEX_MODEL="..."
+export FRONTIER_MODEL="..."
+export ANTHROPIC_API_KEY="..."
+export ANTHROPIC_MODEL="..."
+```
+
+For accurate economics, copy `config/models.example.json`, add current input/output prices, and run with `--registry=...`.
 
 ## Least-privilege tool planning
 
-Switchboard plans logical capabilities before provider-specific tools are attached. A task may request `github`, `files`, and `browser`, but write-capable tools are blocked unless write permission is explicit.
+Switchboard first chooses logical capability families such as `github`, `files`, `browser`, `python`, `drive`, and `email`. It does **not** automatically grant mutation permission.
 
 ```bash
-node src/cli.mjs --dry-run --no-jev "Use the browser and GitHub tools to update the repository and open a pull request"
+node src/cli.mjs --dry-run --no-jev \
+  "Use the browser and GitHub tools to update the repository and open a pull request"
 ```
 
-To authorize write-capable tools in the plan:
+Write-capable tools remain blocked. To explicitly allow write capabilities in the plan:
 
 ```bash
-node src/cli.mjs --dry-run --allow-writes "Update the repository and open a pull request"
+node src/cli.mjs --dry-run --allow-writes \
+  "Update the repository and open a pull request"
 ```
 
-V0.3 still treats these as **logical capability plans**. Provider-specific MCP/OpenAI/Claude tool execution is the next integration step.
+V0.4 produces logical tool plans; mapping those plans to live MCP/provider tools is the next integration milestone.
 
-## Custom model registry
-
-Copy `config/models.example.json` to your own config, fill in current model IDs/pricing, then run:
+## Modes and budgets
 
 ```bash
-node src/cli.mjs --registry=config/models.json --max-cost=1.00 "your request"
+node src/cli.mjs \
+  --dry-run \
+  --mode=economy \
+  --max-cost=0.25 \
+  --max-attempts=2 \
+  "Summarize this support ticket"
 ```
+
+- `economy` — cheap first attempts and minimal verification
+- `balanced` — quality-per-dollar default
+- `premium` — stricter confidence thresholds
+- `max` — aggressive escalation
 
 ## Benchmarking
 
-`npm run benchmark:routing` runs the deterministic baseline and, when `TYPESAFE_API_KEY` is configured, the same corpus through Jev. The included corpus is a smoke/regression benchmark, not held-out evidence of generalization.
+```bash
+npm run benchmark:routing
+```
 
-## Principles
+Without `TYPESAFE_API_KEY`, only the deterministic rules baseline runs. With a key, the same corpus also runs through Jev. The included corpus is a **smoke/regression benchmark**, not held-out evidence of generalization.
 
-1. Use deterministic software before AI when possible.
-2. Use Jev for narrow typed judgments, not open-ended generation.
-3. Give each worker only the context and tools it needs.
-4. Deny external mutations by default.
-5. Escalate based on uncertainty and risk, not prestige.
-6. Optimize successful-task cost, not raw token price.
-7. Keep provider/model IDs configurable.
+The main economic target is **successful-task cost**, not model price in isolation.
 
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md).
+## Design principles
+
+1. Deterministic software before AI when possible.
+2. Jev for narrow typed judgments, not open-ended generation.
+3. Cheapest plausible executor first; escalate on uncertainty/risk.
+4. Give each worker only the context and tools it needs.
+5. External mutations denied by default.
+6. Independent subtasks may run in parallel; dependencies are explicit.
+7. Measure real cost, latency, retries, verification, and success.
+8. Keep models and providers swappable.
+
+## Documentation
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- [`docs/WORKFLOWS.md`](docs/WORKFLOWS.md)
+- [`docs/BENCHMARKING.md`](docs/BENCHMARKING.md)
